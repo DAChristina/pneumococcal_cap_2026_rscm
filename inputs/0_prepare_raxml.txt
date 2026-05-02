@@ -1,0 +1,145 @@
+
+# RAxML using core_gene_alignment_filtered.aln (panaroo's output for more accurate tree) for (1) ALL and (2) ID-specific
+
+1. ALL samples /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict_1all
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f d -p 12345 \
+    -s /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict_1all/core_gene_alignment_filtered.aln \
+    -n 1_output_tree \
+    -w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo_1all \
+    -T 18 # threads
+
+2. ID-specific /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict_2selected
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f d -p 12345 \
+    -s /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict_2selected/core_gene_alignment_filtered.aln \
+    -n 1_output_tree \
+    -w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo_2selected \
+    -T 18 # threads
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# TRIAL RAxML using core_gene_alignment_filtered.aln (panaroo's output for more accurate tree)
+
+1. ML tree inference
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f d -p 12345 \
+    -s /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict/core_gene_alignment_filtered.aln \
+    -n 1_output_tree \
+    -w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo \
+    -T 14 # threads
+
+2. Bootstrap 1000 times requires 2.150371 h * 1000/24 = 90 days. I turned it down to 100 iterations instead.
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f d -p 12345 \
+    -s /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict/core_gene_alignment_filtered.aln \
+    -n 2_bootstrap \
+    -w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo \
+    -b 67890 -# 100 \
+    -T 14 # threads
+
+3. Combine bootstrap trees with the best ML tree
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f b -p 12345 \
+    -t /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo/RAxML_bestTree.1_output_tree \
+    -z /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo/RAxML_bootstrap.2_bootstrap \
+    -n 3_final_tree.nwk \
+    -w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo \
+    -T 14 # threads
+
+
+##############################################################################################################################################
+Re-check submitted jobs
+$ conda activate raxml_env
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f d -p 12345 \
+	-s /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict/core_gene_alignment_filtered.aln \
+	-n 1_output_tree \
+	-w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo \
+	-T 14
+
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f d -p 12345 \
+	-s /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict/core_gene_alignment_filtered.aln \
+	-n 2_bootstrap \
+	-w /home/yus013/Documents/run_SKA2_gubbins_pneumo/result_raxml_from_panaroo \
+	-b 67890 -# 100 \
+	-T 14
+
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f b -p 12345 \
+	-t /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo/RAxML_bestTree.1_output_tree \
+	-z /home/yus013/Documents/run_SKA2_gubbins_pneumo/result_raxml_from_panaroo/RAxML_bootstrap.2_bootstrap \
+	-n 3_final_tree.nwk \
+	-w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo \
+	-T 14
+
+Still don't know what I do wrong?
+$ raxmlHPC-PTHREADS-AVX2 -safe -m GTRGAMMA -f b -p 12345 \
+        -t /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo/RAxML_bestTree.1_output_tree \
+        -z /home/yus013/Documents/run_SKA2_gubbins_pneumo/result_raxml_from_panaroo/RAxML_bootstrap.2_bootstrap \
+        -n 3_final_tree.nwk \
+        -w /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo \
+        -T 14
+Warning, you specified a working directory via "-w"
+Keep in mind that RAxML only accepts absolute path names, not relative ones!
+Found a total of 314 taxa in first tree of tree collection /home/yus013/Documents/run_SKA2_gubbins_pneumo/result_raxml_from_panaroo/RAxML_bootstrap.2_bootstrap
+Expecting all remaining trees in collection to have the same taxon set
+Found 1 tree in File /mnt/d/cap_adult_rscm/outputs/result_raxml_from_panaroo/RAxML_bestTree.1_output_tree
+
+
+
+Found 55 trees in File /home/yus013/Documents/run_SKA2_gubbins_pneumo/result_raxml_from_panaroo/RAxML_bootstrap.2_bootstrap
+
+ERROR: Cannot find tree species: Streptococcus_pn
+The species names in the input tree and alignment file may not match, please check!
+ERROR: Expecting ')' in tree; found: character '('
+
+012,Streptococcus_pn(Streptococcus_pneum
+                    ^
+
+RAxML may be expecting to read a strictly bifurcating tree!
+
+ERROR: Expecting ';' at end of tree; found: character '('
+
+012,Streptococcus_pn(Streptococcus_pneum
+                    ^
+
+RAxML may be expecting to read a tree that contains branch lengths
+
+ERROR: Unable to uproot tree.  Inconsistent
+       number of tips and nodes for rooted tree.
+Segmentation fault (core dumped)
+
+
+
+
+
+
+

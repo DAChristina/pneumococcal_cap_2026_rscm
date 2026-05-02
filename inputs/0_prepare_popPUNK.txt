@@ -1,0 +1,41 @@
+I install PopPUNK database and store it in /mnt/d/database/database_poppunk
+
+Make a list of fasta files for PopPUNK assignation:
+$ for f in /mnt/d/cap_adult_rscm/raw_data/fasta/*.fa*; do 
+    echo -e "$(basename "${f%.fasta}")\t$f"; 
+    done > /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_poppunk.txt
+
+Create db & quality control
+https://poppunk.readthedocs.io/en/latest/qc.html
+# This will generate a new folder called "db_all" in "result_folder"
+$ poppunk --create-db \
+	--output /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_all \
+	--r-files /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_poppunk.txt \
+	--threads 18
+
+Filter out qc
+$ poppunk --qc-db \
+	--ref-db /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_all \
+	--length-range 1900000 2300000
+
+Create new qfiles for filtered data
+$ awk 'FNR==NR {bad[$1]; next} !($1 in bad)' /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_all/db_all_qcreport.txt /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_poppunk.txt > /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_filtered_19to23.txt
+
+Create filtered db
+$ poppunk --create-db \
+	--output /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_filtered \
+	--r-files /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_filtered_19to23.txt \
+	--threads 18
+
+$ poppunk --fit-model bgmm \
+  --ref-db /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_filtered \
+  --output /mnt/d/cap_adult_rscm/outputs/result_poppunk/fit_model_bgmm_filtered
+
+$ poppunk_visualise \
+  --ref-db /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_filtered \
+  --model-dir /mnt/d/cap_adult_rscm/outputs/result_poppunk/fit_model_bgmm_filtered \
+  --output /mnt/d/cap_adult_rscm/outputs/result_poppunk/rapidnj_no_GPSC \
+  --rapidnj /home/genomics/miniconda3/envs/poppunk_env/bin/rapidnj \
+  --threads 18 \
+  --phandango
+

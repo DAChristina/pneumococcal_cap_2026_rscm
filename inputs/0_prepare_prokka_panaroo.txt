@@ -1,0 +1,50 @@
+
+Instead of generating new qfile list, I pick the qfile that was previously analysed with popPUNK's qc:
+Make a list of fasta files for PopPUNK assignation:
+$ for f in /mnt/d/cap_adult_rscm/raw_data/fasta/*fasta; do 
+    echo -e "$(basename "${f%.fasta}")\t$f"; 
+    done > /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_poppunk.txt
+
+
+Create db & quality control
+https://poppunk.readthedocs.io/en/latest/qc.html
+# This will generate a new folder called "db_all" in "result_folder"
+$ poppunk --create-db \
+	--output /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_all \
+	--r-files /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_poppunk.txt \
+	--threads 10
+
+Filter out qc
+$ poppunk --qc-db \
+	--ref-db /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_all \
+	--length-range 1900000 2300000
+
+Create new qfiles for filtered data
+$ awk 'FNR==NR {bad[$1]; next} !($1 in bad)' /mnt/d/cap_adult_rscm/outputs/result_poppunk/db_all/db_all_qcreport.txt /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_poppunk.txt > /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_filtered_19to23.txt
+
+$ while IFS=$'\t' read -r basename fasta_file; do
+    # I compile all of the results in 1 folder
+    prokka --kingdom Bacteria --usegenus \
+        --genus Streptococcus --species pneumoniae \
+        --outdir /mnt/d/cap_adult_rscm/outputs/result_prokka --force \
+        --prefix "$basename" "$fasta_file"
+done < /mnt/d/cap_adult_rscm/outputs/result_poppunk/qfile_filtered_19to23.txt
+
+And compared all_samples tree with selected_samples tree 
+panaroo -i /mnt/d/cap_adult_rscm/outputs/result_prokka/*.gff \
+    --out_dir /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict_1all \
+    --clean-mode strict \
+    --alignment core \
+    --threads 18
+
+I personally selected the NP swabs (copy) instead of sputum because of data availability
+mkdir tree_selected
+
+while make list of selected tree in R and open/copy the gff files using 
+
+panaroo -i /mnt/d/cap_adult_rscm/outputs/result_prokka/tree_selected/*.gff \
+    --out_dir /mnt/d/cap_adult_rscm/outputs/result_panaroo_clean_mode_strict_2selected \
+    --clean-mode strict \
+    --alignment core \
+    --threads 18
+
