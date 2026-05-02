@@ -1,0 +1,32 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.positai
+
+src/*.o
+src/*.so
+src/*.dll
+src/dde.so.dSYM
+src/*.gcda
+src/*.gcno
+
+inst/examples/*.o
+inst/examples/*.so
+inst/examples/*.dll
+inst/doc
+
+ignore/
+dde_*.tar.gz
+notes.md
+vignettes/*.html
+inst/web
+
+# Additional info I don't want to upload data into gitHub
+raw_data/
+inputs/*.csv
+outputs/
+# pictures/
+global/
+renv/
+report/
